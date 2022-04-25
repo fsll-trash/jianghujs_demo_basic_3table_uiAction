@@ -1,0 +1,285 @@
+{% extends 'index.html'%}
+
+{% block vue_template %}
+
+<jh-layout>
+
+  <!-- 页面主要内容 -->
+  <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
+		<v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
+      <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
+        <v-btn color="success" small dark class="elevation-0 mr-2" @click="handleTableButton({ buttonType: 'add' }, null)">新增</v-btn>
+        <span class="body-2">共{{ tableData.length }}条记录</span>
+      </v-col>
+
+      <v-spacer></v-spacer>
+
+      <v-col cols="12" xs="8" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex pl-0">
+        <v-select class="cus-v-input mr-2" v-model="currentTableGenderType" :items="tableGenderTypeList" :label="tableGenderTypeList.label"
+                  prefix="性别：" dense
+                  item-text="label" item-value="value" dense outlined></v-select>
+      </v-col>
+
+      <v-col cols="12" xs="8" sm="4" md="3" xl="3" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
+        <v-text-field v-model="searchInput" label="表格过滤" class="cus-v-input" dense outlined></v-text-field>
+      </v-col>
+
+    </v-row>
+    <v-data-table fixed-header
+                  :headers="headers"
+                  :items="tableData"
+                  :search="searchInput"
+                  :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+                  :items-per-page="-1"
+                  :loading="isTableLoading"
+                  checkbox-color="success"
+									:dense="isMobile"
+									mobile-breakpoint="0"
+                  class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+      <template v-slot:item.gender="{ item }">
+        {{ (constantCollection.gender.find(({value}) => value === item.gender) || {}).text }}
+      </template>
+      <template v-slot:item.action="{ item }">
+        <v-btn :small="!isMobile" class="mr-2" :xSmall="isMobile"  :class="tableButton.color" v-for="tableButton of tableButtonList" @click="handleTableButton(tableButton, item)">
+          {{ tableButton.text }}
+        </v-btn>
+      </template>
+    </v-data-table>
+  </v-container>
+
+  <!-- 编辑抽屉 -->
+  <v-navigation-drawer v-model="isEditDrawerShow" absolute temporary right width="80%" hide-overlay
+                       class="elevation-24">
+    <v-form v-model="isFormValid" ref="form" lazy-validation  v-if="isEditDrawerShow">
+      <v-row>
+        <span class="title pa-6">{{ currentClickButton.title }}信息</span>
+        <v-spacer></v-spacer>
+        <v-btn class="mt-7 mr-8 elevation-0" fab x-small @click="isEditDrawerShow = false">
+          <v-icon dark>mdi-close</v-icon>
+        </v-btn>
+      </v-row>
+      <v-row class="pa-0 ma-0 pa-xs-4 pb-xs-4 flex-none">
+        <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
+          <v-text-field class="cus-v-input mr-2" dense outlined label="班级ID" :rules="requireRules" v-model="editItem.classId"></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
+          <v-select class="cus-v-input mr-2" dense outlined clearable label="班级状态" v-model="editItem.classStatus" :items="constantCollection.classStatus"></v-select>
+        </v-col>
+        <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
+          <v-text-field class="cus-v-input mr-2" dense outlined label="备注" v-model="editItem.remarks"></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row class="justify-end pr-6">
+				<v-btn color="success" @click="saveInfo" small :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
+				<v-btn class="ml-2" @click="isEditDrawerShow = false" small :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
+      </v-row>
+    </v-form>
+  </v-navigation-drawer>
+
+</jh-layout>
+
+{% endblock %}
+
+{% block vue_body %}
+
+{% include 'layout/jhLayout.html' %}
+{% include 'common/resetTableMaxHeight.html' %}
+
+<script type="module">
+  new Vue({
+    el: '#app',
+    template: '#app-template',
+    vuetify: new Vuetify(),
+    data: () => ({
+      // 表格相关数据
+      isFormValid: true,
+      requireRules: [ v => !!v || 'This is required' ],
+      constantCollection: {
+        classId: [
+          {"value": "2021-01级-01班", "text": "2021-01级-01班"}, {"value": "2021-01级-02班", "text": "2021-01级-02班"},
+          {"value": "2021-02级-01班", "text": "2021-02级-01班"}, {"value": "2021-02级-02班", "text": "2021-02级-02班"},
+          {"value": "2021-03级-01班", "text": "2021-03级-01班"}, {"value": "2021-03级-02班", "text": "2021-03级-02班"}
+        ],
+				classStatus: [{"value": "正常", "text": "正常"}, {"value": "毕业班", "text": "毕业班"}],
+
+      },
+      currentTableGenderType: 'all',
+      tableGenderTypeList: [
+        {label: '全部', value: 'all'},
+        {label: '男', value: 'male'},
+        {label: '女', value: 'female'}
+      ],
+      isEditDrawerShow: false,
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        {text: "班级ID", value: "classId", width: 140, class: 'fixed', cellClass: 'fixed'},
+        {text: "门派", value: "menPaiName", width: 140},
+        {text: "学生数量", value: "count", width: 140},
+        {text: "班级状态", value: "classStatus", width: 120},
+        {text: "备注", value: "remarks", width: 120},
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 220, class: 'fixed', cellClass: 'fixed'},
+      ],
+
+      currentClickButton: {title: '新增', action: 'add'},
+      editItem: {},
+      tableButtonList: [
+        {text: '修改', buttonType: 'edit', color: 'success',},
+        {text: '删除', buttonType: 'delete', color: 'error',},
+        {text: '学生', buttonType: 'path', color: '', path: 'studentManagementOfOneClass'},
+      ],
+    }),
+    computed: {
+			isMobile() {
+				return window.innerWidth < 600;
+			},
+      tableData() {
+        if (!this.currentTableGenderType || this.currentTableGenderType === 'all') {
+          return this.tableDataFromBackend;
+        }
+				return _.filter(this.tableDataFromBackend, ['gender', this.currentTableGenderType]);
+      },
+    },
+    watch: {},
+    async created() {
+      await this.getTableData();
+    },
+    mounted() {},
+    methods: {
+      /**
+       * 获取表格数据
+       */
+      async getTableData() {
+        this.isTableLoading = true;
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'classManagement',
+              actionId: 'selectItemList',
+              orderBy: [{column: 'operationAt', order: 'desc'}]
+            }
+          }
+        });
+
+        this.tableDataFromBackend = result.data.appData.rows;
+        this.isTableLoading = false;
+      },
+
+      /**
+       * 点击表格数据按钮
+       */
+      async handleTableButton(button, item) {
+        const buttonType = button.buttonType;
+				this.editItem = {...item};
+				switch (buttonType) {
+          case 'edit':
+            this.currentClickButton = {action: 'edit', title: '修改'};
+            this.isEditDrawerShow = true;
+            break;
+          case 'add':
+            this.currentClickButton = {action: 'add', title: '新增'};
+            this.editItem = {};
+            this.isEditDrawerShow = true;
+            break;
+          case 'delete':
+						if (await window.confirmDialog({ title: '确定要删除吗？' })) {
+							window.vtoast.loading("删除中");
+              await this.deleteClass();
+              await this.deleteStudentClass();
+            }
+            break;
+          case 'path':
+            window.location.href = `/${window.appInfo.appId}/page/${button.path}?id=${item.classId}&title=${item.classId}`
+            break;
+        }
+      },
+      /**
+       * 删除学生
+       */
+      async deleteClass() {
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'classManagement',
+              actionId: 'deleteItem',
+              actionData: {},
+              where: { id: this.editItem.id }
+            }
+          }
+        });
+        window.vtoast.success("删除成功")
+        await this.getTableData();
+      },
+			async deleteStudentClass() {
+				const { classId } = this.editItem;
+				await window.jianghuAxios({
+					data: {
+						appData: {
+							pageId: 'studentClass',
+							actionId: 'deleteItem',
+							where: { classId: classId }
+						}
+					}
+				});
+			},
+      /**
+       * 保存数据
+       */
+      async saveInfo() {
+				if (!this.$refs.form.validate()) return false;
+        if (this.currentClickButton.action === 'add') {
+          await this.insertClass();
+        }
+        if (this.currentClickButton.action === 'edit') {
+          await this.updateClass();
+        }
+        this.isEditDrawerShow = false;
+        await this.getTableData();
+      },
+      /**
+       * 新增学生
+       */
+      async insertClass() {
+				delete this.editItem.id;
+				window.vtoast.loading("保存中");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'classManagement',
+              actionId: 'insertItem',
+              actionData: this.editItem
+            }
+          }
+        })
+        window.vtoast.success("保存成功");
+      },
+      /**
+       * 保存学生
+       */
+      async updateClass() {
+				window.vtoast.loading("保存中");
+				const id = this.editItem.id;
+				delete this.editItem.id;
+				delete this.editItem.count;
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'classManagement',
+              actionId: 'updateItem',
+              actionData: this.editItem,
+              where: {id: id}
+            }
+          }
+        })
+        window.vtoast.success("修改成功");
+      },
+    }
+  })
+</script>
+
+<style scoped>
+</style>
+{% endblock %}

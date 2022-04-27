@@ -1,15 +1,11 @@
 {% extends 'index.html'%}
 
-<!-- 3 table：指定某个 class，管理 student 的页面 -->
-
-
-
 <!-- vue template 代码块 -->
 {% block vue_template %}
 <jh-layout>
     <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
         <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 "
-            :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
+               :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
             <v-col cols="12" class="pa-xs-0 pb-xs-4 pb-0">
                 <h2>
                     【{{ title }}】的学生管理
@@ -19,9 +15,10 @@
         </v-row>
         <v-divider></v-divider>
         <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 "
-            :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
+               :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
             <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0 ">
-                <v-btn dark color="success" @click="isEditDrawerShow = true" class="elevation-0 mr-2">分配新学生</v-btn>
+                <v-btn small dark color="success" @click="isEditDrawerShow = true" class="elevation-0 mr-2">分配新学生
+                </v-btn>
                 <span class="body-2">共{{ tableData.length }}条记录</span>
             </v-col>
             <v-spacer></v-spacer>
@@ -29,41 +26,75 @@
                 <v-text-field dense outlined v-model="searchInput" label="表格过滤" class="cus-v-input"></v-text-field>
             </v-col>
         </v-row>
-        <v-data-table fixed-header :headers="headers" :items="tableData" :search="searchInput"
-            :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }" :items-per-page="20" :dense="isMobile"
-            :loading="isTableLoading" checkbox-color="success" mobile-breakpoint="0"
-            class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
-
+        <v-data-table
+                fixed-header
+                :headers="headers"
+                :items="tableData"
+                :search="searchInput"
+                :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+                :items-per-page="-1"
+                :loading="isTableLoading"
+                :dense="isMobile"
+                mobile-breakpoint="0"
+                class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column"
+        >
+            <template v-slot:item.gender="{ item }">
+                {{ (constantCollection.gender.find(({value}) => value === item.gender) || {}).text }}
+            </template>
             <template v-slot:item.operationAt="{ item }">
                 {{ item.operationAt && dayjs(item.operationAt).format('YYYY-MM-DD HH:mm:ss') }}
             </template>
-            <template v-slot:item.action="{ item }">
+            <template v-slot:item.option="{ item }">
                 <v-btn :small="!isMobile" :xSmall="isMobile" :class="btn.color" v-for="btn of tableButtonList"
-                    @click="deleteItem(item)" :key="btn.value">
+                       @click="doUiAction('deleteItem', item)" :key="btn.value">
                     {{ btn.text }}
                 </v-btn>
             </template>
         </v-data-table>
-        <v-navigation-drawer v-model="isEditDrawerShow" :permanent="isEditDrawerPermanent" absolute temporary right
-            touchless width="80%" hide-overlay class="elevation-24">
+        <v-navigation-drawer
+                v-model="isEditDrawerShow"
+                :permanent="isEditDrawerPermanent"
+                absolute
+                temporary
+                right
+                touchless
+                width="80%"
+                :dense="isMobile"
+                hide-overlay
+                class="elevation-24"
+        >
             <v-container class="navDrawerContainer">
                 <v-row class=" pa-2">
-                    <v-btn class="mt-0" dark color="success" elevation="0" @click="addSelected">新增</v-btn>
+                    <v-btn class="mt-0" small dark color="success" elevation="0" @click="doUiAction('allotStudent')">新增</v-btn>
                     <v-spacer></v-spacer>
                     <v-btn class="mr-4 mt-1 elevation-0" fab x-small @click="isEditDrawerShow = false">
                         <v-icon dark>mdi-close</v-icon>
                     </v-btn>
                 </v-row>
                 <v-row class="pa-2 py-0">
-                    <v-data-table fixed-header show-select checkbox-color="success" :headers="headers"
-                        :loading="isDrawerTableLoading" :items="drawerTableData" item-key="studentId" :dense="isMobile"
-                        :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }" :items-per-page="20"
-                        mobile-breakpoint="0" @item-selected="drawerItemSelected"
-                        @toggle-select-all="drawerToggleSelectAll"
-                        class="elevation-0 pt-0 mb-xs-4 flex-fill d-flex flex-column show-select">
-                        <template v-slot:item.action="{ item }">
-                            <v-btn :small="!isMobile" :xSmall="isMobile" dark class="success"
-                                @click="buildRelation(item)">新增</v-btn>
+                    <v-data-table
+                            fixed-header
+                            show-select
+                            checkbox-color="success"
+                            :headers="headers"
+                            :loading="isDrawerTableLoading"
+                            :items="drawerTableData"
+                            item-key="studentId"
+                            :dense="isMobile"
+                            :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+                            :items-per-page="-1"
+                            mobile-breakpoint="0"
+                            @item-selected="drawerItemSelected"
+                            @toggle-select-all="drawerToggleSelectAll"
+                            class="elevation-0 pt-0 mb-xs-4 flex-fill d-flex flex-column show-select"
+                    >
+                        <template v-slot:item.gender="{ item }">
+                            {{ getConstantCollectionItemText('gender', item.gender) }}
+                        </template>
+                        <template v-slot:item.option="{ item }">
+                            <v-btn :small="!isMobile" :xSmall="isMobile" class="success" @click="doUiAction('buildRelation', item)">
+                                新增
+                            </v-btn>
                         </template>
                     </v-data-table>
                 </v-row>
@@ -75,183 +106,210 @@
 {% endblock %}
 
 {% block vue_body %}
+{% include 'common/uiAction.html' %}
+<script type="module">
+  window.registerData({
+    classId: null,
+    title: null,
+
+    searchInput: null,
+    isTableLoading: true,
+    isDrawerTableLoading: true,
+    isEditDrawerPermanent: false,
+    isEditDrawerShow: false,
+    constantCollection: {
+      gender: [{"value": "male", "text": "男"}, {"value": "female", "text": "女"}],
+    },
+    headers: [
+      {text: "学生ID", value: "studentId", width: 120, required: true, class: 'fixed', cellClass: 'fixed'},
+      {text: "学生名字", value: "name", width: 120, required: true},
+      {text: "性别", value: "gender", width: 120},
+      {text: "出生日期", value: "dateOfBirth", type: "date", width: 120},
+      {text: "身高", value: "bodyHeight", width: 120},
+      {text: "学生状态", value: "studentStatus", width: 120},
+      {text: "备注", value: "remarks", width: 120},
+      {text: "操作人", value: "operationByUser", width: 120},
+      {text: "操作时间", value: "operationAt", width: 250},
+      {text: '操作', value: 'option', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed'},
+    ],
+    drawerTableDataFromBackend: [],
+    tableDataFromBackend: [],
+    tableButtonList: [
+      {text: '删除', buttonType: 'delete', color: 'error',},
+    ],
+    drawerItemSelectedClass: [],
+    currentClickButton: {title: '新增', action: 'add'},
+  })
+</script>
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
 
-    new Vue({
-        el: '#app',
-        template: '#app-template',
-        vuetify: new Vuetify(),
-        data: () => ({
-            classId: null,
-            title: null,
-
-            searchInput: null,
-            isTableLoading: true,
-            isDrawerTableLoading: true,
-            isEditDrawerPermanent: false,
-            isEditDrawerShow: false,
-            headers: [
-                 
-                { text: '学生ID', value: 'studentId', width: 120 }, 
-                { text: '门派ID', value: 'menPaiId', width: 120 }, 
-                { text: '门派名', value: 'menPaiName', width: 120 }, 
-                { text: '学生名字', value: 'name', width: 120 }, 
-                { text: '性别', value: 'gender', width: 120 }, 
-                { text: '出生日期', value: 'dateOfBirth', width: 120 }, 
-                { text: '身高', value: 'bodyHeight', width: 120 }, 
-                { text: '学生状态', value: 'studentStatus', width: 120 }, 
-                { text: '备注', value: 'remarks', width: 120 }, 
-                { text: "操作者", value: "operationByUser", width: 120 },
-                { text: "操作时间", value: "operationAt", width: 250 },
-                { text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed' },
-            ],
-            drawerTableDataFromBackend: [],
-            tableDataFromBackend: [],
-            tableButtonList: [
-                { text: '删除', buttonType: 'delete', color: 'error', },
-            ],
-            drawerItemSelectedClass: [],
-            currentClickButton: { title: '新增', action: 'add' },
-        }),
-
-        computed: {
-            isMobile() {
-                return window.innerWidth < 600;
-            },
-            // 表格内容，即当前班级下的学生
-            tableData() {
-                return this.tableDataFromBackend;
-            },
-            // 弹出抽屉的内容，即：所有学生 - 当前班级下的学生
-            drawerTableData() {
-                if (_.isEmpty(this.drawerTableDataFromBackend)) {
-                    return [];
-                }
-                return _.differenceBy(this.drawerTableDataFromBackend, this.tableData, 'studentId');
-            },
-        },
-        watch: {},
-        async created() {
-            const urlParams = new URLSearchParams(location.search);
-            const classId = urlParams.get('classId');
-            const title = urlParams.get('title');
-            if (classId && title) {
-                this.classId = classId;
-                this.title = title;
-            } else {
-                setTimeout(() => {
-                    window.vtoast.fail('请从"班级列表"点击"学生"进入');
-                }, 1000);
-                return;
-            }
-            this.getTableData();
-            await this.getDrawerTableData();
-        },
-        mounted() {
-        },
-        methods: {
-            // 获取当前班级下的数据
-            async getTableData() {
-                this.isTableLoading = true;
-                const result = await window.jianghuAxios({
-                    data: {
-                        appData: {
-                            pageId: 'studentManagementOfOneClass',
-                            actionId: 'selectCurrentList',
-                            where: { classId: this.classId },
-                            orderBy: [{ column: 'operationAt', order: 'desc' }]
-                        }
-                    }
-                });
-                this.tableDataFromBackend = result.data.appData.rows;
-                this.isTableLoading = false;
-            },
-            // 获取所有学生的数据
-            async getDrawerTableData() {
-                this.isDrawerTableLoading = true;
-                const result = await window.jianghuAxios({
-                    data: {
-                        appData: {
-                            pageId: 'studentManagementOfOneClass',
-                            actionId: 'selectAllList',
-                            orderBy: [{ column: 'operationAt', order: 'desc' }]
-                        }
-                    }
-                });
-                this.drawerTableDataFromBackend = result.data.appData.rows;
-                this.isDrawerTableLoading = false;
-            },
-            async addSelected() {
-                this.isEditDrawerPermanent = true;
-                if (await window.confirmDialog({ title: '确定将学生分配给此班级' })) {
-                    this.isEditDrawerPermanent = false;
-                    for (let i = 0; i < this.drawerItemSelectedClass.length; i++) {
-                        window.vtoast.loading(`正在新增 第${i + 1}个`);
-                        const { studentId } = this.drawerItemSelectedClass[i];
-                        await this.buildRelationImpl(studentId);
-                    }
-                    window.vtoast.success("批量新增成功");
-                    await this.getTableData();
-                    this.drawerItemSelectedClass = [];
-                }
-            },
-            async buildRelation({ studentId }) {
-                this.isEditDrawerPermanent = true;
-                if (await window.confirmDialog({ title: '确定将学生分配给此班级' })) {
-                    this.isEditDrawerPermanent = false;
-                    window.vtoast.loading("正在新增");
-                    await this.buildRelationImpl(studentId);
-                    window.vtoast.success("新增成功");
-                    await this.getTableData();
-                }
-            },
-            async buildRelationImpl(studentId) {
-                await window.jianghuAxios({
-                    data: {
-                        appData: {
-                            pageId: 'studentManagementOfOneClass',
-                            actionId: 'jhInsertItem',
-                            actionData: { classId: this.classId, studentId }
-                        }
-                    }
-                });
-            },
-            async deleteItem({ id }) {
-                if (await window.confirmDialog({ title: '确认将学生从班级删除？' })) {
-                    window.vtoast.loading("删除中");
-                    await window.jianghuAxios({
-                        data: {
-                            appData: {
-                                pageId: 'studentManagementOfOneClass',
-                                actionId: 'jhDeleteItem',
-                                where: { id: id }
-                            }
-                        }
-                    });
-                    window.vtoast.success("删除成功");
-                    await this.getTableData();
-                }
-            },
-            drawerItemSelected({ item, value }) {
-                console.log(item, value);
-                if (value) {
-                    this.drawerItemSelectedClass.push(item);
-                } else {
-                    this.drawerItemSelectedClass = _.filter(this.drawerItemSelectedClass, ['studentId', item.studentId]);
-                }
-            },
-            drawerToggleSelectAll({ items, value }) {
-                console.log(items, value);
-                if (value) {
-                    this.drawerItemSelectedClass = items;
-                } else {
-                    this.drawerItemSelectedClass = [];
-                }
-            },
-            dayjs: dayjs,
+  new Vue({
+    el: '#app',
+    template: '#app-template',
+    vuetify: new Vuetify(),
+    mixins: [window.jianghuMixins],
+    data: () => window.vueData,
+    computed: {
+      isMobile() {
+        return window.innerWidth < 600;
+      },
+      tableData() {
+        return this.tableDataFromBackend;
+      },
+      drawerTableData() {
+        if (_.isEmpty(this.drawerTableDataFromBackend)) {
+          return [];
         }
-    })
+        return _.differenceBy(this.drawerTableDataFromBackend, this.tableData, 'studentId');
+      },
+    },
+    watch: {},
+    async created() {
+      const urlParams = new URLSearchParams(location.search);
+      const id = urlParams.get('id');
+      const title = urlParams.get('title');
+      if (id && title) {
+        this.classId = id;
+        this.title = title;
+      } else {
+        window.vtoast.fail('请从"班级列表"点击"学生"进入');
+        return;
+      }
+    },
+    mounted() {
+      this.doUiAction('refreshTableData');
+      this.doUiAction('getDrawerTableData');
+    },
+    methods: {
+      async refreshTableData() {
+        this.isTableLoading = true;
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'studentManagementOfOneClass',
+              actionId: 'selectItemList',
+              actionData: {},
+              where: {
+                classId: this.classId
+              },
+              orderBy: [{column: 'operationAt', order: 'desc'}]
+            }
+          }
+        });
+        this.tableDataFromBackend = result.data.appData.rows;
+        this.isTableLoading = false;
+      },
+      // 未包含数据列表
+      async getDrawerTableData() {
+        this.isDrawerTableLoading = true;
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'studentManagementOfOneClass',
+              actionId: 'selectStudentItemList',
+              orderBy: [{column: 'operationAt', order: 'desc'}]
+            }
+          }
+        });
+        this.drawerTableDataFromBackend = result.data.appData.rows;
+        this.isDrawerTableLoading = false;
+      },
+
+      async openDrawerDialog() {
+        this.isEditDrawerPermanent = true;
+      },
+
+      async closeDrawerShow() {
+        this.isEditDrawerPermanent = false;
+      },
+
+      // allotStudent
+      async confirmAllotStudentDialog() {
+        return window.confirmDialog({title: '确定将学生分配给此班级', content: '确定分配吗？'})
+      },
+      async doAllotStudent() {
+        for (let i = 0; i < this.drawerItemSelectedClass.length; i++) {
+          this.isEditDrawerPermanent = false;
+          window.vtoast.loading(`正在新增 第${i + 1}个`);
+          const {studentId} = this.drawerItemSelectedClass[i];
+          await this.buildRelationImpl(studentId);
+        }
+        window.vtoast.success("批量新增成功");
+      },
+
+      async clearItemSelectedClass() {
+        this.drawerItemSelectedClass = [];
+      },
+
+      // buildRelation
+      async doBuildRelation({studentId}) {
+        this.isEditDrawerPermanent = true;
+        this.isEditDrawerPermanent = false;
+        window.vtoast.loading("正在新增");
+        await this.buildRelationImpl(studentId);
+        window.vtoast.success("新增成功");
+      },
+
+      async buildRelationImpl(studentId) {
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'studentManagementOfOneClass',
+              actionId: 'insertItem',
+              actionData: {
+                studentId, classId: this.classId
+              }
+            }
+          }
+        });
+      },
+
+      // deleteItem
+      async confirmDeleteStudentForClassDialog() {
+        return window.confirmDialog({title: '确认将学生从班级删除', content: '确定删除吗？'})
+      },
+
+      async doDeleteItem({id}) {
+        window.vtoast.loading("删除中");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'studentManagementOfOneClass',
+              actionId: 'deleteItem',
+              actionData: {},
+              where: {id: id}
+            }
+          }
+        });
+        window.vtoast.success("删除成功");
+      },
+      drawerItemSelected({item, value}) {
+        console.log(item, value);
+        if (value) {
+          this.drawerItemSelectedClass.push(item);
+        } else {
+          this.drawerItemSelectedClass = _.filter(this.drawerItemSelectedClass, ['studentId', item.studentId]);
+        }
+      },
+      drawerToggleSelectAll({items, value}) {
+        console.log(items, value);
+        if (value) {
+          this.drawerItemSelectedClass = items;
+        } else {
+          this.drawerItemSelectedClass = [];
+        }
+      },
+      dayjs: dayjs,
+      getConstantCollectionItemText(key, _value) {
+        const constantCollectionItemFind = this.constantCollection[key].find(({value}) => value === _value);
+        if (constantCollectionItemFind) {
+          return constantCollectionItemFind.text;
+        }
+        return _value;
+      }
+    }
+  })
 </script>
 {% endblock %}

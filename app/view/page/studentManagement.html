@@ -47,7 +47,7 @@
         <v-btn :small="!isMobile" class="mr-2 error" @click="doUiAction('deleteItem', item)">
           删除
         </v-btn>
-        <v-btn v-if="currentUserGroupRole.roleId === 'fenban'" :small="!isMobile" :xSmall="isMobile" class="mr-2" color=""
+        <v-btn v-if="['appAdmin', 'fenban'].includes(currentUserGroupRole.roleId)" :small="!isMobile" :xSmall="isMobile" class="mr-2" color=""
                @click="urlPath('classManagementOfOneStudent', item)">
           班级
         </v-btn>
@@ -215,7 +215,7 @@
       /**
        * 获取表格数据
        */
-      async getUserInfo() {
+      async doGetUserInfo() {
         const result = await window.jianghuAxios({
           data: {
             appData: {

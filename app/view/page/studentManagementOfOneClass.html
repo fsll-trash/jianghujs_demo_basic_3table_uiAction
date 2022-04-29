@@ -227,6 +227,7 @@
 
       // allotStudent
       async confirmAllotStudentDialog() {
+        this.isEditDrawerPermanent = true;
         return window.confirmDialog({title: '确定将学生分配给此班级', content: '确定分配吗？'})
       },
       async doAllotStudent() {
@@ -245,7 +246,6 @@
 
       // buildRelation
       async doBuildRelation({studentId}) {
-        this.isEditDrawerPermanent = true;
         this.isEditDrawerPermanent = false;
         window.vtoast.loading("正在新增");
         await this.buildRelationImpl(studentId);

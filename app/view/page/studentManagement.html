@@ -107,61 +107,6 @@
 
 {% block vue_body %}
 {% include 'common/uiAction.html' %}
-<script type="module">
-  window.registerData({
-    // 表格相关数据
-    isFormValid: true,
-    requireRules: [ v => !!v || 'This is required' ],
-    constantCollection: {
-      gender: [{"value": "male", "text": "男"}, {"value": "female", "text": "女"}],
-      classId: [
-        {"value": "2021-01级-01班", "text": "2021-01级-01班"}, {"value": "2021-01级-02班", "text": "2021-01级-02班"},
-        {"value": "2021-02级-01班", "text": "2021-02级-01班"}, {"value": "2021-02级-02班", "text": "2021-02级-02班"},
-        {"value": "2021-03级-01班", "text": "2021-03级-01班"}, {"value": "2021-03级-02班", "text": "2021-03级-02班"}
-      ],
-      level: [{"value": "01", "text": "一年级"}, {"value": "02", "text": "二年级"}, {"value": "03", "text": "三年级"}],
-      icType: [{"value": "身份证", "text": "身份证"}, {"value": "护照", "text": "护照"}],
-      enrollmentType: [{"value": "正常升学", "text": "正常升学"}, {"value": "借读", "text": "借读"}],
-      studentStatus: [{"value": "正常", "text": "正常"}, {"value": "退学", "text": "退学"}]
-    },
-    currentTableGenderType: 'all',
-    tableGenderTypeList: [
-      {label: '全部', value: 'all'},
-      {label: '男', value: 'male'},
-      {label: '女', value: 'female'}
-    ],
-    isEditDrawerShow: false,
-    searchInput: null,
-    isTableLoading: true,
-    tableDataFromBackend: [],
-    headers: [
-      {text: "学生ID", value: "studentId", width: 120, class: 'fixed', cellClass: 'fixed'},
-      {text: "学生名字", value: "name", width: 120},
-      {text: "门派", value: "menPaiName", width: 140},
-      {text: "性别", value: "gender", width: 120},
-      {text: "出生日期", value: "dateOfBirth", type: "date", width: 120},
-      {text: "身高", value: "bodyHeight", width: 120},
-      {text: "学生状态", value: "studentStatus", width: 120},
-      {text: "备注", value: "remarks", width: 120},
-      {text: "操作人", value: "operationByUser", width: 120},
-      {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 240, class: 'fixed', cellClass: 'fixed'},
-    ],
-
-    currentClickButton: {title: '新增', action: 'add'},
-    editItem: {},
-    tableButtonList: [
-      {text: '修改', buttonType: 'edit', color: 'success',},
-      {text: '删除', buttonType: 'delete', color: 'error',},
-    ],
-
-    userInfo: {
-      user: {}
-    },
-    currentUserGroupRole: {},
-    dialogSaveInfoAction: ''
-  })
-</script>
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
@@ -170,7 +115,59 @@
     template: '#app-template',
     vuetify: new Vuetify(),
     mixins: [window.jianghuUiActionMixins],
-    data: () => window.vueData,
+    data: {
+      // 表格相关数据
+      isFormValid: true,
+      requireRules: [ v => !!v || 'This is required' ],
+      constantCollection: {
+        gender: [{"value": "male", "text": "男"}, {"value": "female", "text": "女"}],
+        classId: [
+          {"value": "2021-01级-01班", "text": "2021-01级-01班"}, {"value": "2021-01级-02班", "text": "2021-01级-02班"},
+          {"value": "2021-02级-01班", "text": "2021-02级-01班"}, {"value": "2021-02级-02班", "text": "2021-02级-02班"},
+          {"value": "2021-03级-01班", "text": "2021-03级-01班"}, {"value": "2021-03级-02班", "text": "2021-03级-02班"}
+        ],
+        level: [{"value": "01", "text": "一年级"}, {"value": "02", "text": "二年级"}, {"value": "03", "text": "三年级"}],
+        icType: [{"value": "身份证", "text": "身份证"}, {"value": "护照", "text": "护照"}],
+        enrollmentType: [{"value": "正常升学", "text": "正常升学"}, {"value": "借读", "text": "借读"}],
+        studentStatus: [{"value": "正常", "text": "正常"}, {"value": "退学", "text": "退学"}]
+      },
+      currentTableGenderType: 'all',
+      tableGenderTypeList: [
+        {label: '全部', value: 'all'},
+        {label: '男', value: 'male'},
+        {label: '女', value: 'female'}
+      ],
+      isEditDrawerShow: false,
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        {text: "学生ID", value: "studentId", width: 120, class: 'fixed', cellClass: 'fixed'},
+        {text: "学生名字", value: "name", width: 120},
+        {text: "门派", value: "menPaiName", width: 140},
+        {text: "性别", value: "gender", width: 120},
+        {text: "出生日期", value: "dateOfBirth", type: "date", width: 120},
+        {text: "身高", value: "bodyHeight", width: 120},
+        {text: "学生状态", value: "studentStatus", width: 120},
+        {text: "备注", value: "remarks", width: 120},
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 240, class: 'fixed', cellClass: 'fixed'},
+      ],
+
+      currentClickButton: {title: '新增', action: 'add'},
+      editItem: {},
+      tableButtonList: [
+        {text: '修改', buttonType: 'edit', color: 'success',},
+        {text: '删除', buttonType: 'delete', color: 'error',},
+      ],
+
+      userInfo: {
+        user: {}
+      },
+      currentUserGroupRole: {},
+      dialogSaveInfoAction: ''
+    },
     computed: {
       isMobile() {
           return window.innerWidth < 600;

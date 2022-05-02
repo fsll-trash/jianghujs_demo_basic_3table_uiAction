@@ -105,33 +105,6 @@
 
 {% block vue_body %}
 {% include 'common/uiAction.html' %}
-<script type="module">
-  window.registerData({
-    studentId: null,
-    title: null,
-    searchInput: null,
-    isTableLoading: true,
-    isDrawerTableLoading: true,
-    isEditDrawerPermanent: false,
-    isEditDrawerShow: false,
-    headers: [
-      {text: "班级ID", value: "classId", width: 140, class: 'fixed', cellClass: 'fixed'},
-      {text: "学生数量", value: "count", width: 140},
-      {text: "班级状态", value: "classStatus", width: 120},
-      {text: "备注", value: "remarks", width: 120},
-      {text: "操作人", value: "operationByUser", width: 120},
-      {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'option', align: 'center', sortable: false, width: 120, class: 'fixed', cellClass: 'fixed'},
-    ],
-    drawerTableDataFromBackend: [],
-    tableDataFromBackend: [],
-    tableButtonList: [
-      {text: '删除', buttonType: 'delete', color: 'error',},
-    ],
-    drawerItemSelectedClass: [],
-    currentClickButton: {title: '新增', action: 'add'},
-  })
-</script>
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
@@ -141,7 +114,31 @@
     template: '#app-template',
     vuetify: new Vuetify(),
     mixins: [window.jianghuUiActionMixins],
-    data: () => window.vueData,
+    data: {
+      studentId: null,
+      title: null,
+      searchInput: null,
+      isTableLoading: true,
+      isDrawerTableLoading: true,
+      isEditDrawerPermanent: false,
+      isEditDrawerShow: false,
+      headers: [
+        {text: "班级ID", value: "classId", width: 140, class: 'fixed', cellClass: 'fixed'},
+        {text: "学生数量", value: "count", width: 140},
+        {text: "班级状态", value: "classStatus", width: 120},
+        {text: "备注", value: "remarks", width: 120},
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'option', align: 'center', sortable: false, width: 120, class: 'fixed', cellClass: 'fixed'},
+      ],
+      drawerTableDataFromBackend: [],
+      tableDataFromBackend: [],
+      tableButtonList: [
+        {text: '删除', buttonType: 'delete', color: 'error',},
+      ],
+      drawerItemSelectedClass: [],
+      currentClickButton: {title: '新增', action: 'add'},
+    },
     computed: {
       isMobile() {
         return window.innerWidth < 600;

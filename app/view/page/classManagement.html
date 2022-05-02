@@ -100,51 +100,6 @@
 {% block vue_body %}
 
 {% include 'common/uiAction.html' %}
-<script type="module">
-  window.registerData({
-    // 表格相关数据
-    isFormValid: true,
-    requireRules: [v => !!v || 'This is required'],
-    constantCollection: {
-      classId: [
-        {"value": "2021-01级-01班", "text": "2021-01级-01班"}, {"value": "2021-01级-02班", "text": "2021-01级-02班"},
-        {"value": "2021-02级-01班", "text": "2021-02级-01班"}, {"value": "2021-02级-02班", "text": "2021-02级-02班"},
-        {"value": "2021-03级-01班", "text": "2021-03级-01班"}, {"value": "2021-03级-02班", "text": "2021-03级-02班"}
-      ],
-      classStatus: [{"value": "正常", "text": "正常"}, {"value": "毕业班", "text": "毕业班"}],
-
-    },
-    currentTableGenderType: 'all',
-    tableGenderTypeList: [
-      {label: '全部', value: 'all'},
-      {label: '男', value: 'male'},
-      {label: '女', value: 'female'}
-    ],
-    isEditDrawerShow: false,
-    searchInput: null,
-    isTableLoading: true,
-    tableDataFromBackend: [],
-    headers: [
-      {text: "班级ID", value: "classId", width: 140, class: 'fixed', cellClass: 'fixed'},
-      {text: "门派", value: "menPaiName", width: 140},
-      {text: "学生数量", value: "count", width: 140},
-      {text: "班级状态", value: "classStatus", width: 120},
-      {text: "备注", value: "remarks", width: 120},
-      {text: "操作人", value: "operationByUser", width: 120},
-      {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 220, class: 'fixed', cellClass: 'fixed'},
-    ],
-
-    currentClickButton: {title: '新增', action: 'add'},
-    editItem: {},
-    tableButtonList: [
-      {text: '修改', buttonType: 'edit', color: 'success',},
-      {text: '删除', buttonType: 'delete', color: 'error',},
-      {text: '学生', buttonType: 'path', color: '', path: 'studentManagementOfOneClass'},
-    ],
-    dialogSaveInfoAction: ''
-  })
-</script>
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 
@@ -154,7 +109,49 @@
     template: '#app-template',
     vuetify: new Vuetify(),
     mixins: [window.jianghuUiActionMixins],
-    data: () => window.vueData,
+    data: {
+      // 表格相关数据
+      isFormValid: true,
+      requireRules: [v => !!v || 'This is required'],
+      constantCollection: {
+        classId: [
+          {"value": "2021-01级-01班", "text": "2021-01级-01班"}, {"value": "2021-01级-02班", "text": "2021-01级-02班"},
+          {"value": "2021-02级-01班", "text": "2021-02级-01班"}, {"value": "2021-02级-02班", "text": "2021-02级-02班"},
+          {"value": "2021-03级-01班", "text": "2021-03级-01班"}, {"value": "2021-03级-02班", "text": "2021-03级-02班"}
+        ],
+        classStatus: [{"value": "正常", "text": "正常"}, {"value": "毕业班", "text": "毕业班"}],
+
+      },
+      currentTableGenderType: 'all',
+      tableGenderTypeList: [
+        {label: '全部', value: 'all'},
+        {label: '男', value: 'male'},
+        {label: '女', value: 'female'}
+      ],
+      isEditDrawerShow: false,
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        {text: "班级ID", value: "classId", width: 140, class: 'fixed', cellClass: 'fixed'},
+        {text: "门派", value: "menPaiName", width: 140},
+        {text: "学生数量", value: "count", width: 140},
+        {text: "班级状态", value: "classStatus", width: 120},
+        {text: "备注", value: "remarks", width: 120},
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 220, class: 'fixed', cellClass: 'fixed'},
+      ],
+
+      currentClickButton: {title: '新增', action: 'add'},
+      editItem: {},
+      tableButtonList: [
+        {text: '修改', buttonType: 'edit', color: 'success',},
+        {text: '删除', buttonType: 'delete', color: 'error',},
+        {text: '学生', buttonType: 'path', color: '', path: 'studentManagementOfOneClass'},
+      ],
+      dialogSaveInfoAction: ''
+    },
     computed: {
       isMobile() {
         return window.innerWidth < 600;

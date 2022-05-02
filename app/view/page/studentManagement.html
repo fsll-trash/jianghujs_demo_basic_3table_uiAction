@@ -41,14 +41,14 @@
         {{ getConstantCollectionItemText('gender', item.gender) }}
       </template>
       <template v-slot:item.action="{ item }">
-        <v-btn :small="!isMobile" class="mr-2 success" @click="doUiAction('startUpdateItem', item)">
+        <v-btn :small="!isMobile" class="mr-2 success" @click="doUiAction('startUpdateItem', {item})">
           修改
         </v-btn>
-        <v-btn :small="!isMobile" class="mr-2 error" @click="doUiAction('deleteItem', item)">
+        <v-btn :small="!isMobile" class="mr-2 error" @click="doUiAction('deleteItem', {item})">
           删除
         </v-btn>
         <v-btn v-if="['appAdmin', 'fenban'].includes(currentUserGroupRole.roleId)" :small="!isMobile" :xSmall="isMobile" class="mr-2" color=""
-               @click="urlPath('classManagementOfOneStudent', item)">
+               @click="urlPath('classManagementOfOneStudent', {item})">
           班级
         </v-btn>
       </template>
@@ -106,7 +106,6 @@
 {% endblock %}
 
 {% block vue_body %}
-{% include 'common/uiAction.html' %}
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
@@ -270,7 +269,7 @@
       },
 
       // startUpdateItem
-      async prepareItemData(item) {
+      async prepareItemData({item}) {
         this.editItem = {...item};
       },
 

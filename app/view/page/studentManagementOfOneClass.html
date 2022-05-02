@@ -46,7 +46,7 @@
             </template>
             <template v-slot:item.option="{ item }">
                 <v-btn :small="!isMobile" :xSmall="isMobile" :class="btn.color" v-for="btn of tableButtonList"
-                       @click="doUiAction('deleteItem', item)" :key="btn.value">
+                       @click="doUiAction('deleteItem', {item})" :key="btn.value">
                     {{ btn.text }}
                 </v-btn>
             </template>
@@ -92,7 +92,7 @@
                             {{ getConstantCollectionItemText('gender', item.gender) }}
                         </template>
                         <template v-slot:item.option="{ item }">
-                            <v-btn :small="!isMobile" :xSmall="isMobile" class="success" @click="doUiAction('buildRelation', item)">
+                            <v-btn :small="!isMobile" :xSmall="isMobile" class="success" @click="doUiAction('buildRelation', {item})">
                                 新增
                             </v-btn>
                         </template>
@@ -106,7 +106,6 @@
 {% endblock %}
 
 {% block vue_body %}
-{% include 'common/uiAction.html' %}
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
@@ -242,10 +241,10 @@
       },
 
       // buildRelation
-      async doBuildRelation({studentId}) {
+      async doBuildRelation({item}) {
         this.isEditDrawerPermanent = false;
         window.vtoast.loading("正在新增");
-        await this.buildRelationImpl(studentId);
+        await this.buildRelationImpl(item.studentId);
         window.vtoast.success("新增成功");
       },
 
@@ -268,7 +267,7 @@
         return window.confirmDialog({title: '确认将学生从班级删除', content: '确定删除吗？'})
       },
 
-      async doDeleteItem({id}) {
+      async doDeleteItem({item}) {
         window.vtoast.loading("删除中");
         await window.jianghuAxios({
           data: {
@@ -276,7 +275,7 @@
               pageId: 'studentManagementOfOneClass',
               actionId: 'deleteItem',
               actionData: {},
-              where: {id: id}
+              where: {id: item.id}
             }
           }
         });

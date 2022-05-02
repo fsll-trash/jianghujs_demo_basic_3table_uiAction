@@ -104,7 +104,6 @@
 {% endblock %}
 
 {% block vue_body %}
-{% include 'common/uiAction.html' %}
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
@@ -228,10 +227,10 @@
       },
 
       // buildRelation
-      async doBuildRelation({classId}) {
+      async doBuildRelation({item}) {
         this.isEditDrawerPermanent = false;
         window.vtoast.loading("正在新增");
-        await this.buildRelationImpl(classId);
+        await this.buildRelationImpl(item.classId);
         window.vtoast.success("新增成功");
       },
       async buildRelationImpl(classId) {
@@ -252,14 +251,14 @@
       async confirmDeleteStudentForClassDialog() {
         return window.confirmDialog({title: '确认将学生从班级删除', content: '确定删除吗？'})
       },
-      async doDeleteItem({id}) {
+      async doDeleteItem({item}) {
         window.vtoast.loading("删除中");
         await window.jianghuAxios({
           data: {
             appData: {
               pageId: 'classManagementOfOneStudent',
               actionId: 'deleteItem',
-              where: {id: id}
+              where: {id: item.id}
             }
           }
         });

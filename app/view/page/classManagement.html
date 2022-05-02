@@ -1,4 +1,4 @@
-{% extends 'index.html'%}
+{% extends 'template/jhTemplate.html'%}
 
 {% block vue_template %}
 
@@ -201,6 +201,11 @@
         this.currentClickButton = {action: 'add', title: '新增'};
         this.isEditDrawerShow = true;
         this.dialogSaveInfoAction = 'createItem';
+      },
+
+      // createItem
+      async prepareValidate() {
+        if (!this.$refs.form.validate()) return false;
       },
 
       // createItem

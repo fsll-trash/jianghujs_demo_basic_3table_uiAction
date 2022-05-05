@@ -205,7 +205,7 @@
           }
         });
 
-        this.tableDataFromBackend = result.data.appData.rows;
+        this.tableDataFromBackend = result.data.appData.resultData.rows;
         this.isTableLoading = false;
       },
       /**
@@ -221,7 +221,7 @@
           }
         });
 
-        this.userInfo = result.data.appData;
+        this.userInfo = result.data.appData.resultData;
         this.currentUserGroupRole = this.userInfo.userGroupRoleList[0];
       },
 

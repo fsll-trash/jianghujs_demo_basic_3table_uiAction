@@ -194,7 +194,7 @@
             }
           }
         });
-        this.tableDataFromBackend = result.data.appData.rows;
+        this.tableDataFromBackend = result.data.appData.resultData.rows;
         this.isTableLoading = false;
       },
       // 未包含数据列表
@@ -209,7 +209,7 @@
             }
           }
         });
-        this.drawerTableDataFromBackend = result.data.appData.rows;
+        this.drawerTableDataFromBackend = result.data.appData.resultData.rows;
         this.isDrawerTableLoading = false;
       },
 

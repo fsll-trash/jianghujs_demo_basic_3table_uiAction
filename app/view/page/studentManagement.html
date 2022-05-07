@@ -48,7 +48,7 @@
           删除
         </v-btn>
         <v-btn v-if="['appAdmin', 'fenban'].includes(currentUserGroupRole.roleId)" :small="!isMobile" :xSmall="isMobile" class="mr-2" color=""
-               @click="urlPath('classManagementOfOneStudent', {item})">
+               @click="doUiAction('redirect', {item, path: 'classManagementOfOneStudent'})">
           班级
         </v-btn>
       </template>
@@ -238,7 +238,7 @@
 
       // createItem
       async prepareValidate() {
-        if (!this.$refs.form.validate()) return false;
+        return this.$refs.form.validate();
       },
 
       // createItem
@@ -335,7 +335,7 @@
           });
       },
 
-      async urlPath(path, item) {
+      async doRedirect({item, path}) {
         window.location.href = `/${window.appInfo.appId}/page/${path}?id=${item.studentId}&title=${item.name}`
       },
       getConstantCollectionItemText(key, _value) {

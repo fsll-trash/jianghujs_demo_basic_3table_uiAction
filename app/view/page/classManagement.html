@@ -50,7 +50,7 @@
         <v-btn :small="!isMobile" class="mr-2 error" @click="doUiAction('deleteItem', {item})">
           删除
         </v-btn>
-        <v-btn :small="!isMobile" class="mr-2" @click="urlPath('studentManagementOfOneClass', {item})">
+        <v-btn :small="!isMobile" class="mr-2" @click="doUiAction('redirect', {item, path: 'studentManagementOfOneClass'})">
           学生
         </v-btn>
       </template>
@@ -160,6 +160,7 @@
         }
         return _.filter(this.tableDataFromBackend, ['gender', this.currentTableGenderType]);
       },
+
     },
     watch: {},
     async created() {
@@ -200,7 +201,7 @@
 
       // createItem
       async prepareValidate() {
-        if (!this.$refs.form.validate()) return false;
+        return this.$refs.form.validate();
       },
 
       // createItem
@@ -299,7 +300,7 @@
           }
         });
       },
-      async urlPath(path, item) {
+      async doRedirect({item, path}) {
         if (path.startsWith('http')) {
           window.location.href = `${path}?id=${item.classId}&title=${item.classId}`
         } else {

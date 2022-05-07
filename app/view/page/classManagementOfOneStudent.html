@@ -3,103 +3,131 @@
 <!-- vue template 代码块 -->
 {% block vue_template %}
 <jh-layout>
-    <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
-        <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 "
-               :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
-            <v-col cols="12" class="pa-xs-0 pb-xs-4 pb-0">
-                <h2>
-                    【{{ title }}】的班级管理
-                    <span style="font-size: 1rem;" :class="{'d-block': isMobile}">(ID: {{ studentId }})</span>
-                </h2>
-            </v-col>
+  <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
+    <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 "
+           :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
+      <v-col cols="12" class="pa-xs-0 pb-xs-4 pb-0">
+        <h2>
+            【{{ title }}】的班级管理
+          <span style="font-size: 1rem;" :class="{'d-block': isMobile}">(ID: {{ studentId }})</span>
+        </h2>
+      </v-col>
+    </v-row>
+    <v-divider></v-divider>
+    <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 "
+           :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
+      <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0 ">
+        <v-btn small dark color="success" @click="isAllotEditDrawerShow = true" class="elevation-0 mr-2">分配新班级
+        </v-btn>
+        <span class="body-2">共{{ tableData.length }}条记录</span>
+      </v-col>
+      <v-spacer></v-spacer>
+      <v-col cols="12" xs="8" sm="4" md="3" xl="3" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
+        <v-text-field dense outlined v-model="searchInput" label="表格过滤" class="cus-v-input"></v-text-field>
+      </v-col>
+    </v-row>
+    <v-data-table
+      fixed-header
+      :headers="headers"
+      :items="tableData"
+      :search="searchInput"
+      :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+      :items-per-page="-1"
+      :dense="isMobile"
+      :loading="isTableLoading"
+      checkbox-color="success"
+      mobile-breakpoint="0"
+      class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column"
+    >
+      <template v-slot:item.operationAt="{ item }">
+        {{ item.operationAt && dayjs(item.operationAt).format('YYYY-MM-DD HH:mm:ss') }}
+      </template>
+      <template v-slot:item.option="{ item }">
+        <v-btn :small="!isMobile" :xSmall="isMobile" class="success" @click="doUiAction('startUpdateItem',{item})">修改</v-btn>
+        <v-btn :small="!isMobile" :xSmall="isMobile" class="error" @click="doUiAction('deleteItem',{item})">删除</v-btn>
+      </template>
+    </v-data-table>
+    <v-navigation-drawer
+      v-model="isAllotEditDrawerShow"
+      :permanent="isAllotEditDrawerPermanent"
+      absolute
+      temporary
+      right
+      touchless
+      width="80%"
+      hide-overlay
+      class="elevation-24"
+    >
+      <v-container class="navDrawerContainer">
+        <v-row class=" pa-2">
+          <v-btn class="mt-0" small dark color="success" elevation="0" @click="doUiAction('allotClass')">新增
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn class="mr-4 mt-1 elevation-0" fab x-small @click="isAllotEditDrawerShow = false">
+            <v-icon dark>mdi-close</v-icon>
+          </v-btn>
         </v-row>
-        <v-divider></v-divider>
-        <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 "
-               :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
-            <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0 ">
-                <v-btn small dark color="success" @click="isEditDrawerShow = true" class="elevation-0 mr-2">分配新班级
+          <v-row class="pa-2 py-0">
+            <v-data-table
+              fixed-header
+              show-select
+              checkbox-color="success"
+              :headers="headers"
+              :loading="isDrawerTableLoading"
+              :items="drawerTableData"
+              item-key="classId"
+              :dense="isMobile"
+              :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+              :items-per-page="-1"
+              mobile-breakpoint="0"
+              @item-selected="drawerItemSelected"
+              @toggle-select-all="drawerToggleSelectAll"
+              class="elevation-0 pt-0 mb-xs-4 flex-fill d-flex flex-column show-select"
+            >
+              <template v-slot:item.district="{ item }">
+                {{ districtMap[item.district] }}
+              </template>
+              <template v-slot:item.option="{ item }">
+                <v-btn :small="!isMobile" :xSmall="isMobile" class="success"
+                       @click="doUiAction('buildRelation', item)">新增
                 </v-btn>
-                <span class="body-2">共{{ tableData.length }}条记录</span>
-            </v-col>
-            <v-spacer></v-spacer>
-            <v-col cols="12" xs="8" sm="4" md="3" xl="3" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
-                <v-text-field dense outlined v-model="searchInput" label="表格过滤" class="cus-v-input"></v-text-field>
-            </v-col>
-        </v-row>
-        <v-data-table
-                fixed-header
-                :headers="headers"
-                :items="tableData"
-                :search="searchInput"
-                :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
-                :items-per-page="-1"
-                :dense="isMobile"
-                :loading="isTableLoading"
-                checkbox-color="success"
-                mobile-breakpoint="0"
-                class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column"
-        >
-            <template v-slot:item.operationAt="{ item }">
-                {{ item.operationAt && dayjs(item.operationAt).format('YYYY-MM-DD HH:mm:ss') }}
-            </template>
-            <template v-slot:item.option="{ item }">
-                <v-btn :small="!isMobile" :xSmall="isMobile" :class="btn.color" v-for="btn of tableButtonList"
-                       @click="doUiAction('deleteItem',item)" :key="btn.value">
-                    {{ btn.text }}
-                </v-btn>
-            </template>
-        </v-data-table>
-        <v-navigation-drawer
-                v-model="isEditDrawerShow"
-                :permanent="isEditDrawerPermanent"
-                absolute
-                temporary
-                right
-                touchless
-                width="80%"
-                hide-overlay
-                class="elevation-24"
-        >
-            <v-container class="navDrawerContainer">
-                <v-row class=" pa-2">
-                    <v-btn class="mt-0" small dark color="success" elevation="0" @click="doUiAction('allotClass')">新增
-                    </v-btn>
-                    <v-spacer></v-spacer>
-                    <v-btn class="mr-4 mt-1 elevation-0" fab x-small @click="isEditDrawerShow = false">
-                        <v-icon dark>mdi-close</v-icon>
-                    </v-btn>
-                </v-row>
-                <v-row class="pa-2 py-0">
-                    <v-data-table
-                            fixed-header
-                            show-select
-                            checkbox-color="success"
-                            :headers="headers"
-                            :loading="isDrawerTableLoading"
-                            :items="drawerTableData"
-                            item-key="classId"
-                            :dense="isMobile"
-                            :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
-                            :items-per-page="-1"
-                            mobile-breakpoint="0"
-                            @item-selected="drawerItemSelected"
-                            @toggle-select-all="drawerToggleSelectAll"
-                            class="elevation-0 pt-0 mb-xs-4 flex-fill d-flex flex-column show-select"
-                    >
-                        <template v-slot:item.district="{ item }">
-                            {{ districtMap[item.district] }}
-                        </template>
-                        <template v-slot:item.option="{ item }">
-                            <v-btn :small="!isMobile" :xSmall="isMobile" class="success"
-                                   @click="doUiAction('buildRelation', item)">新增
-                            </v-btn>
-                        </template>
-                    </v-data-table>
-                </v-row>
-            </v-container>
-        </v-navigation-drawer>
-    </v-container>
+              </template>
+            </v-data-table>
+          </v-row>
+      </v-container>
+    </v-navigation-drawer>
 
+    <!-- 编辑抽屉 -->
+    <v-navigation-drawer v-model="isEditDrawerShow" absolute temporary right width="80%" hide-overlay
+                         class="elevation-24">
+      <v-form v-model="isFormValid" v-if="isEditDrawerShow" ref="form" lazy-validation>
+        <v-row>
+          <span class="title pa-6">{{ currentClickButton.title }}信息</span>
+          <v-spacer></v-spacer>
+          <v-btn class="mt-7 mr-8 elevation-0" fab x-small @click="isEditDrawerShow = false">
+            <v-icon dark>mdi-close</v-icon>
+          </v-btn>
+        </v-row>
+        <v-row class="pa-0 ma-0 pa-xs-4 pb-xs-4 flex-none">
+          <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
+            <v-text-field class="cus-v-input mr-2" dense outlined label="班级ID" :rules="requireRules"
+                          v-model="editItem.classId"></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
+            <v-text-field class="cus-v-input mr-2" dense outlined label="班级ID" :rules="requireRules"
+                          v-model="editItem.studentId"></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="12" md="4" xl="3" class="pa-xs-0 pb-xs-4 pb-3">
+            <v-text-field class="cus-v-input mr-2" dense outlined label="备注" v-model="editItem.remark"></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row class="justify-end pr-6">
+          <v-btn color="success" small @click="doUiAction('updateItem', {item: editItem})" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
+          <v-btn class="ml-2" small @click="isEditDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
+        </v-row>
+      </v-form>
+    </v-navigation-drawer>
+  </v-container>
 </jh-layout>
 {% endblock %}
 
@@ -119,24 +147,27 @@
       searchInput: null,
       isTableLoading: true,
       isDrawerTableLoading: true,
-      isEditDrawerPermanent: false,
+      isAllotEditDrawerPermanent: false,
+      isAllotEditDrawerShow: false,
       isEditDrawerShow: false,
       headers: [
-        {text: "班级ID", value: "classId", width: 140, class: 'fixed', cellClass: 'fixed'},
-        {text: "学生数量", value: "count", width: 140},
+        {text: "学生ID", value: "studentId", width: 140, class: 'fixed', cellClass: 'fixed'},
+        {text: "班级ID", value: "classId", width: 140},
         {text: "班级状态", value: "classStatus", width: 120},
-        {text: "备注", value: "remarks", width: 120},
+        {text: "备注", value: "remark", width: 120},
         {text: "操作人", value: "operationByUser", width: 120},
         {text: "操作时间", value: "operationAt", width: 250},
         {text: '操作', value: 'option', align: 'center', sortable: false, width: 120, class: 'fixed', cellClass: 'fixed'},
       ],
       drawerTableDataFromBackend: [],
       tableDataFromBackend: [],
-      tableButtonList: [
-        {text: '删除', buttonType: 'delete', color: 'error',},
-      ],
       drawerItemSelectedClass: [],
       currentClickButton: {title: '新增', action: 'add'},
+      isFormValid: true,
+      requireRules: [
+        v => !!v || 'This is required',
+      ],
+      editItem: {}
     },
     computed: {
       isMobile() {
@@ -201,12 +232,17 @@
         this.isDrawerTableLoading = false;
       },
 
+      // createItem
+      async prepareValidate() {
+        return this.$refs.form.validate();
+      },
+
       async openDrawerDialog() {
-        this.isEditDrawerPermanent = true;
+        this.isAllotEditDrawerPermanent = true;
       },
 
       async closeDrawerShow() {
-        this.isEditDrawerPermanent = false;
+        this.isAllotEditDrawerPermanent = false;
       },
 
       // allotClass
@@ -228,7 +264,7 @@
 
       // buildRelation
       async doBuildRelation({item}) {
-        this.isEditDrawerPermanent = false;
+        this.isAllotEditDrawerPermanent = false;
         window.vtoast.loading("正在新增");
         await this.buildRelationImpl(item.classId);
         window.vtoast.success("新增成功");
@@ -246,6 +282,40 @@
           }
         });
       },
+
+      async prepareItemData({item}) {
+        this.editItem = {...item};
+      },
+
+      async openUpdateDialog() {
+        this.currentClickButton = {action: 'edit', title: '修改'};
+        this.isEditDrawerShow = true;
+      },
+
+      // updateItem
+      async confirmUpdateItemDialog() {
+        return window.confirmDialog({title: '修改', content: '确定修改吗？'});
+      },
+
+      /**
+       * 保存数据
+       */
+      async doUpdateItem() {
+        const {id, classId, studentId, remark } = this.editItem;
+        await window.vtoast.loading("修改数据");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'classManagementOfOneStudent',
+              actionId: 'updateItem',
+              actionData: { classId, studentId, remark },
+              where: {id: id}
+            }
+          }
+        })
+        await window.vtoast.success("修改数据成功");
+      },
+
 
       // deleteItem
       async confirmDeleteStudentForClassDialog() {
